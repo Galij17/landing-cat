@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { PatOverlay } from './PatOverlay';
 
+const HERO_ACCESSORIES = [
+  { id: 'none', label: 'Polos' },
+  { id: 'bow', label: 'Pita Imut' },
+  { id: 'glasses', label: 'Kacamata' },
+  { id: 'blush', label: 'Merona' },
+];
+
 function getMoodStage(score) {
   if (score >= 8) return { label: 'Mode Zoomies!', percent: 100 };
   if (score >= 5) return { label: 'Super Manja', percent: 75 };
@@ -24,6 +31,7 @@ export function HeroSection({
   const [laserMode, setLaserMode] = useState(false);
   const [laserPos, setLaserPos] = useState({ x: 50, y: 45 });
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+  const [accessory, setAccessory] = useState('none');
 
   const moodStage = getMoodStage(interactionScore);
 
@@ -194,6 +202,77 @@ export function HeroSection({
                 />
               )}
 
+              {accessory === 'bow' && (
+                <svg
+                  className="hero-accessory hero-accessory-bow"
+                  viewBox="0 0 120 72"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M54 36 C32 10, 8 18, 14 42 C18 58, 38 56, 54 40 Z"
+                    fill="#E94E77"
+                    stroke="#171412"
+                    strokeWidth="4"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M66 36 C88 10, 112 18, 106 42 C102 58, 82 56, 66 40 Z"
+                    fill="#E94E77"
+                    stroke="#171412"
+                    strokeWidth="4"
+                    strokeLinejoin="round"
+                  />
+                  <circle cx="60" cy="38" r="11" fill="#FFB8C9" stroke="#171412" strokeWidth="4" />
+                </svg>
+              )}
+
+              {accessory === 'glasses' && (
+                <svg
+                  className="hero-accessory hero-accessory-glasses"
+                  viewBox="0 0 220 76"
+                  aria-hidden="true"
+                >
+                  <rect
+                    x="12"
+                    y="14"
+                    width="78"
+                    height="48"
+                    rx="18"
+                    fill="rgba(23, 20, 18, 0.72)"
+                    stroke="#FFF7ED"
+                    strokeWidth="5"
+                  />
+                  <rect
+                    x="130"
+                    y="14"
+                    width="78"
+                    height="48"
+                    rx="18"
+                    fill="rgba(23, 20, 18, 0.72)"
+                    stroke="#FFF7ED"
+                    strokeWidth="5"
+                  />
+                  <path d="M90 36 H130" stroke="#FFF7ED" strokeWidth="5" strokeLinecap="round" />
+                  <path d="M26 26 L44 26" stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" />
+                  <path d="M144 26 L162 26" stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" />
+                </svg>
+              )}
+
+              {accessory === 'blush' && (
+                <div className="hero-accessory hero-accessory-blush" aria-hidden="true">
+                  <span className="blush-cheek blush-left" />
+                  <span className="blush-cheek blush-right" />
+                  <svg className="blush-sparkle" viewBox="0 0 40 40">
+                    <path
+                      d="M20 4 L24 16 L36 20 L24 24 L20 36 L16 24 L4 20 L16 16 Z"
+                      fill="#FFD166"
+                      stroke="#171412"
+                      strokeWidth="2.5"
+                    />
+                  </svg>
+                </div>
+              )}
+
               <PatOverlay burst={patBurst} />
             </div>
 
@@ -210,6 +289,20 @@ export function HeroSection({
                   style={{ width: `${moodStage.percent}%` }}
                 />
               </div>
+            </div>
+
+            <div className="hero-accessory-bar" role="group" aria-label="Pilih aksesori imut kucing">
+              {HERO_ACCESSORIES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`accessory-pill ${accessory === item.id ? 'is-active' : ''}`}
+                  aria-pressed={accessory === item.id}
+                  onClick={() => setAccessory(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
 
             <div className="hero-frame-footer">

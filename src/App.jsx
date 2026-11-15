@@ -2,9 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { INITIAL_CATS } from './data/cats';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
+import { CardboardBox } from './components/CardboardBox';
 import { GallerySection } from './components/GallerySection';
 import { ExpressionBattle } from './components/ExpressionBattle';
 import { CardStudio } from './components/CardStudio';
+import { CatCompanion } from './components/CatCompanion';
 import { CatModal } from './components/CatModal';
 import { Footer } from './components/Footer';
 import {
@@ -65,6 +67,9 @@ export default function App() {
   const [viewStatus, setViewStatus] = useState('ready');
   const [modalCatId, setModalCatId] = useState(null);
   const [patBursts, setPatBursts] = useState({});
+  const [companionLine, setCompanionLine] = useState(
+    'Miao! Pencet hidungku atau ketuk kardus kejutan yuk!'
+  );
   const reloadTimerRef = useRef(null);
   const patTimersRef = useRef({});
   const patSeqRef = useRef(0);
@@ -215,12 +220,16 @@ export default function App() {
     }, 650);
   };
 
+  const getCatName = (catId) =>
+    cats.find((cat) => cat.id === catId)?.name || 'Si Meong';
+
   const handlePatCat = (catId) => {
     setPatsByCat((prev) => ({
       ...prev,
       [catId]: (prev[catId] || 0) + 1,
     }));
     triggerBurst(catId, 'pat', PAT_WORDS);
+    setCompanionLine(`${getCatName(catId)} purring keras! Prrr~`);
     if (soundEnabled) playMeowSound();
   };
 
@@ -230,6 +239,7 @@ export default function App() {
       [catId]: (prev[catId] || 0) + 1,
     }));
     triggerBurst(catId, 'boop', BOOP_WORDS);
+    setCompanionLine(`Boop! Hidung ${getCatName(catId)} adem banget!`);
     if (soundEnabled) playBoopSound();
   };
 
@@ -239,6 +249,7 @@ export default function App() {
       [catId]: (prev[catId] || 0) + 1,
     }));
     triggerBurst(catId, 'treat', TREAT_WORDS);
+    setCompanionLine(`${getCatName(catId)} lahap makan ikan crispy!`);
     if (soundEnabled) playCrunchSound();
   };
 
@@ -247,7 +258,20 @@ export default function App() {
       ...prev,
       [catId]: (prev[catId] || 0) + 1,
     }));
+    setCompanionLine(`${getCatName(catId)} makin pede di arena ekspresi!`);
     if (soundEnabled) playMeowSound();
+  };
+
+  const handleBoxPop = (cat) => {
+    if (cat?.name) {
+      setCompanionLine(`Cihuy! ${cat.name} nongol dari dalam kardus!`);
+    }
+    if (soundEnabled) playMeowSound();
+  };
+
+  const handlePetCompanion = (quote) => {
+    if (quote) setCompanionLine(quote);
+    if (soundEnabled) playBoopSound();
   };
 
   const handleSaveCat = (catId, updates) => {
@@ -311,6 +335,12 @@ export default function App() {
           onToggleSound={handleToggleSound}
         />
 
+        <CardboardBox
+          cats={cats}
+          onOpenDetail={setModalCatId}
+          onBoxPop={handleBoxPop}
+        />
+
         <GallerySection
           cats={filteredCats}
           activeMood={activeMood}
@@ -335,7 +365,10 @@ export default function App() {
 
         <ExpressionBattle
           cats={cats}
+          patsByCat={patsByCat}
+          treatsByCat={treatsByCat}
           winsByCat={winsByCat}
+          soundEnabled={soundEnabled}
           onVoteCat={handleVoteBattle}
         />
 
@@ -343,6 +376,11 @@ export default function App() {
       </main>
 
       <Footer onResetAll={handleResetAll} />
+
+      <CatCompanion
+        message={companionLine}
+        onPetCompanion={handlePetCompanion}
+      />
 
       {modalCat && (
         <CatModal

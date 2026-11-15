@@ -78,3 +78,31 @@ export function playCrunchSound() {
     osc.stop(now + offset + 0.09);
   });
 }
+
+export function playBrawlSound() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+
+  const notes = [280, 420, 310, 620];
+  notes.forEach((freq, idx) => {
+    const start = now + idx * 0.14;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = idx === notes.length - 1 ? 'triangle' : 'square';
+    osc.frequency.setValueAtTime(freq, start);
+    osc.frequency.exponentialRampToValueAtTime(
+      idx === notes.length - 1 ? 820 : freq * 0.7,
+      start + 0.1
+    );
+
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.exponentialRampToValueAtTime(0.06, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.12);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + 0.13);
+  });
+}
