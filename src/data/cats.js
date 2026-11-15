@@ -6,6 +6,22 @@ import cat05Img from '../assets/cats/cat-05-garden-explorer.jpg';
 
 export const MOOD_FILTERS = ['Semua', 'Dramatis', 'Konyol', 'Garang', 'Santai'];
 
+export const CARD_STICKERS = [
+  { id: 'none', label: 'Tanpa Stiker', text: '' },
+  { id: 'boop', label: 'BOOP!', text: 'BOOP!' },
+  { id: 'miao', label: 'MIAO!', text: 'MIAO!' },
+  { id: 'wibawa', label: 'WIBAWA +99', text: 'WIBAWA +99' },
+  { id: 'tuna', label: 'MINTA TUNA', text: 'MINTA TUNA' },
+];
+
+export const BATTLE_SCENARIOS = [
+  'Siapa yang paling meyakinkan kalau pura-pura belum dikasih makan?',
+  'Tatapan siapa yang paling ampuh bikin kamu batal keluar rumah?',
+  'Siapa yang paling pantas jadi mandor tidur siang di kasur?',
+  'Kalau isi kulkas dibuka tengah malam, siapa yang paling cepat muncul?',
+  'Siapa yang ekspresinya paling cocok mewakili perasaan hari Senin?',
+];
+
 export const INITIAL_CATS = [
   {
     id: 'cat-01',
@@ -22,6 +38,7 @@ export const INITIAL_CATS = [
     story:
       'Tatapan mata cokelat keemasan menghadap ke atas, menangkap cahaya hangat dari samping sementara bulu dadanya yang putih tetap kontras di latar ruangan gelap.',
     signatureLine: 'Sedang memikirkan jam makan berikutnya dengan penuh wibawa.',
+    battleWinLine: 'Dengan tatapan penuh drama seperti ini, jelas jatah makan malam wajib ditambah!',
     presets: [
       'Menunggu keajaiban turun dari rak lemari.',
       'Tatapan serius sebelum minta camilan.',
@@ -43,6 +60,7 @@ export const INITIAL_CATS = [
     story:
       'Ekspresi melet kecil dengan mata bulat membesar di latar hitam pekat, ditambah sentuhan stiker tangan kuning yang membuat suasananya jauh dari kata serius.',
     signatureLine: 'Santai dulu, urusan kabel pengisi daya dipikir nanti.',
+    battleWinLine: 'Menang telak cuma bermodal melet sepersekian detik dan gaya santai!',
     presets: [
       'Halo, ada jadwal tidur siang bersama?',
       'Lupa memasukkan lidah sejak lima menit lalu.',
@@ -64,6 +82,7 @@ export const INITIAL_CATS = [
     story:
       'Sudut lensa lebar mempertegas satu kaki kanan yang terangkat tinggi dan sorot mata menyipit di atas kasur putih. Siap menjaga batas teritori bantal.',
     signatureLine: 'Jangan sentuh ujung kaki sebelum izin tertulis.',
+    battleWinLine: 'Satu kepalan cakar lembut cukup untuk menguasai seluruh area seprai!',
     presets: [
       'Pemanasan pagi sebelum kejar-kejaran di lorong.',
       'Serius, siapa yang memindahkan bola mainan?',
@@ -85,6 +104,7 @@ export const INITIAL_CATS = [
     story:
       'Potret jarak dekat tanpa celah: kumis putih tegas, hidung merah muda mencolok, dan mata hijau kekuningan yang tampak sedang menguji kebenaran alasanmu pulang telat.',
     signatureLine: 'Kenapa bau tanganmu seperti kucing komplek sebelah?',
+    battleWinLine: 'Tatapan interogasi ini langsung bikin semua orang mengaku salah!',
     presets: [
       'Investigasi kantong belanja selesai dalam tiga detik.',
       'Tidak percaya sebelum melihat bukti snack.',
@@ -106,6 +126,7 @@ export const INITIAL_CATS = [
     story:
       'Satu-satunya sesi luar ruang dengan cahaya alami: bulu putih krem lembut, kalung lonceng biru kecil, dan daun hijau yang membingkai dagu saat menatap langit taman.',
     signatureLine: 'Pagi yang tenang di antara daun dan bunga halaman.',
+    battleWinLine: 'Dengan pesona polos di balik daun, siapa yang tega menolak permintaannya?',
     presets: [
       'Memantau kupu-kupu yang lewat terlalu cepat.',
       'Jadwal patroli kebun pukul tujuh pagi.',

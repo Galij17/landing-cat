@@ -3,17 +3,28 @@ import { INITIAL_CATS } from './data/cats';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { GallerySection } from './components/GallerySection';
+import { ExpressionBattle } from './components/ExpressionBattle';
 import { CardStudio } from './components/CardStudio';
 import { CatModal } from './components/CatModal';
 import { Footer } from './components/Footer';
+import {
+  playBoopSound,
+  playCrunchSound,
+  playMeowSound,
+} from './utils/catAudio';
 
 const STORAGE_KEYS = {
   theme: 'landing-cat-theme',
+  sound: 'landing-cat-sound',
   custom: 'landing-cat-custom',
   pats: 'landing-cat-pats',
+  treats: 'landing-cat-treats',
+  wins: 'landing-cat-wins',
 };
 
 const PAT_WORDS = ['Purr~', 'Miao!', 'Nyaman~', 'Prrrt!', 'Lagi dong!'];
+const TREAT_WORDS = ['NYAM!', 'TUNA!', 'ENAK!', 'MAU LAGI!'];
+const BOOP_WORDS = ['BOOP!', 'TINY BOOP!', 'PIU!', 'HEHE!'];
 
 function loadJson(key, fallback) {
   try {
@@ -30,11 +41,22 @@ export default function App() {
     return saved === 'dark' ? 'dark' : 'light';
   });
 
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEYS.sound);
+    return saved === 'true';
+  });
+
   const [customByCat, setCustomByCat] = useState(() =>
     loadJson(STORAGE_KEYS.custom, {})
   );
   const [patsByCat, setPatsByCat] = useState(() =>
     loadJson(STORAGE_KEYS.pats, {})
+  );
+  const [treatsByCat, setTreatsByCat] = useState(() =>
+    loadJson(STORAGE_KEYS.treats, {})
+  );
+  const [winsByCat, setWinsByCat] = useState(() =>
+    loadJson(STORAGE_KEYS.wins, {})
   );
 
   const [heroCatId, setHeroCatId] = useState(INITIAL_CATS[0].id);
@@ -58,6 +80,14 @@ export default function App() {
 
   useEffect(() => {
     try {
+      window.localStorage.setItem(STORAGE_KEYS.sound, String(soundEnabled));
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    try {
       window.localStorage.setItem(
         STORAGE_KEYS.custom,
         JSON.stringify(customByCat)
@@ -74,6 +104,25 @@ export default function App() {
       // Ignore storage quota errors
     }
   }, [patsByCat]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        STORAGE_KEYS.treats,
+        JSON.stringify(treatsByCat)
+      );
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [treatsByCat]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEYS.wins, JSON.stringify(winsByCat));
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [winsByCat]);
 
   useEffect(() => {
     return () => {
@@ -99,8 +148,7 @@ export default function App() {
     });
   }, [customByCat]);
 
-  const activeHeroCat =
-    cats.find((cat) => cat.id === heroCatId) || cats[0];
+  const activeHeroCat = cats.find((cat) => cat.id === heroCatId) || cats[0];
 
   const filteredCats = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -120,10 +168,41 @@ export default function App() {
 
   const modalCat = cats.find((cat) => cat.id === modalCatId) || null;
 
+  const triggerBurst = (catId, type, wordPool) => {
+    patSeqRef.current += 1;
+    const seq = patSeqRef.current;
+    const word = wordPool[(seq - 1) % wordPool.length];
+    setPatBursts((prev) => ({
+      ...prev,
+      [catId]: { id: seq, type, word },
+    }));
+
+    if (patTimersRef.current[catId]) {
+      window.clearTimeout(patTimersRef.current[catId]);
+    }
+    patTimersRef.current[catId] = window.setTimeout(() => {
+      setPatBursts((prev) => {
+        if (!prev[catId] || prev[catId].id !== seq) return prev;
+        const next = { ...prev };
+        delete next[catId];
+        return next;
+      });
+    }, 900);
+  };
+
   const handleShuffleHero = () => {
     const others = cats.filter((cat) => cat.id !== activeHeroCat.id);
     const next = others[Math.floor(Math.random() * others.length)];
     if (next) setHeroCatId(next.id);
+    if (soundEnabled) playMeowSound();
+  };
+
+  const handleToggleSound = () => {
+    setSoundEnabled((prev) => {
+      const next = !prev;
+      if (next) playMeowSound();
+      return next;
+    });
   };
 
   const handleTriggerReload = () => {
@@ -141,26 +220,34 @@ export default function App() {
       ...prev,
       [catId]: (prev[catId] || 0) + 1,
     }));
+    triggerBurst(catId, 'pat', PAT_WORDS);
+    if (soundEnabled) playMeowSound();
+  };
 
-    patSeqRef.current += 1;
-    const seq = patSeqRef.current;
-    const word = PAT_WORDS[(seq - 1) % PAT_WORDS.length];
-    setPatBursts((prev) => ({
+  const handleBoopCat = (catId) => {
+    setPatsByCat((prev) => ({
       ...prev,
-      [catId]: { id: seq, word },
+      [catId]: (prev[catId] || 0) + 1,
     }));
+    triggerBurst(catId, 'boop', BOOP_WORDS);
+    if (soundEnabled) playBoopSound();
+  };
 
-    if (patTimersRef.current[catId]) {
-      window.clearTimeout(patTimersRef.current[catId]);
-    }
-    patTimersRef.current[catId] = window.setTimeout(() => {
-      setPatBursts((prev) => {
-        if (!prev[catId] || prev[catId].id !== seq) return prev;
-        const next = { ...prev };
-        delete next[catId];
-        return next;
-      });
-    }, 900);
+  const handleTreatCat = (catId) => {
+    setTreatsByCat((prev) => ({
+      ...prev,
+      [catId]: (prev[catId] || 0) + 1,
+    }));
+    triggerBurst(catId, 'treat', TREAT_WORDS);
+    if (soundEnabled) playCrunchSound();
+  };
+
+  const handleVoteBattle = (catId) => {
+    setWinsByCat((prev) => ({
+      ...prev,
+      [catId]: (prev[catId] || 0) + 1,
+    }));
+    if (soundEnabled) playMeowSound();
   };
 
   const handleSaveCat = (catId, updates) => {
@@ -181,6 +268,8 @@ export default function App() {
   const handleResetAll = () => {
     setCustomByCat({});
     setPatsByCat({});
+    setTreatsByCat({});
+    setWinsByCat({});
     setActiveMood('Semua');
     setSearchQuery('');
     setViewStatus('ready');
@@ -193,6 +282,9 @@ export default function App() {
     setModalCatId(cats[nextIndex].id);
   };
 
+  const heroInteractionScore =
+    (patsByCat[activeHeroCat.id] || 0) + (treatsByCat[activeHeroCat.id] || 0);
+
   return (
     <div className="app-shell">
       <Navbar
@@ -200,6 +292,8 @@ export default function App() {
         onToggleTheme={() =>
           setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
         }
+        soundEnabled={soundEnabled}
+        onToggleSound={handleToggleSound}
       />
 
       <main id="konten-utama">
@@ -209,6 +303,12 @@ export default function App() {
           onSelectCat={setHeroCatId}
           onShuffleCat={handleShuffleHero}
           onOpenDetail={setModalCatId}
+          onBoopCat={handleBoopCat}
+          onPatCat={handlePatCat}
+          patBurst={patBursts[activeHeroCat.id] || null}
+          interactionScore={heroInteractionScore}
+          soundEnabled={soundEnabled}
+          onToggleSound={handleToggleSound}
         />
 
         <GallerySection
@@ -226,9 +326,17 @@ export default function App() {
           onTriggerError={() => setViewStatus('error')}
           onRecoverError={handleTriggerReload}
           patsByCat={patsByCat}
+          treatsByCat={treatsByCat}
           patBursts={patBursts}
           onPatCat={handlePatCat}
+          onTreatCat={handleTreatCat}
           onOpenDetail={setModalCatId}
+        />
+
+        <ExpressionBattle
+          cats={cats}
+          winsByCat={winsByCat}
+          onVoteCat={handleVoteBattle}
         />
 
         <CardStudio cats={cats} />

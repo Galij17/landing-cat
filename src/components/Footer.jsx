@@ -10,8 +10,8 @@ export function Footer({ onResetAll }) {
             <span className="brand-text">Landing Cat</span>
           </a>
           <p className="footer-note">
-            Galeri karakter lima kucing. Nama contoh yang Anda ubah dan jumlah
-            tepukan tersimpan secara lokal di browser Anda.
+            Galeri karakter lima kucing. Nama contoh yang Anda ubah, jumlah
+            tepukan, ikan, dan skor duel tersimpan secara lokal di browser Anda.
           </p>
         </div>
 
@@ -22,7 +22,10 @@ export function Footer({ onResetAll }) {
                 <a href="#sorotan">Sorotan</a>
               </li>
               <li>
-                <a href="#galeri">Galeri 5 Kucing</a>
+                <a href="#galeri">Galeri</a>
+              </li>
+              <li>
+                <a href="#adu-ekspresi">Adu Ekspresi</a>
               </li>
               <li>
                 <a href="#studio-kata">Studio Kartu</a>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { CARD_STICKERS } from '../data/cats';
 
 function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
   const words = text.split(/\s+/);
@@ -30,9 +31,13 @@ export function CardStudio({ cats }) {
 
   const [caption, setCaption] = useState(activeCat.presets[0]);
   const [cardTheme, setCardTheme] = useState('dark');
+  const [stickerId, setStickerId] = useState('boop');
   const [statusMessage, setStatusMessage] = useState('');
   const [downloading, setDownloading] = useState(false);
   const [imgError, setImgError] = useState(false);
+
+  const activeSticker =
+    CARD_STICKERS.find((s) => s.id === stickerId) || CARD_STICKERS[0];
 
   useEffect(() => {
     setCaption(activeCat.presets[0]);
@@ -40,8 +45,23 @@ export function CardStudio({ cats }) {
     setImgError(false);
   }, [activeCat]);
 
+  const handleRandomCombo = () => {
+    const randomCat = cats[Math.floor(Math.random() * cats.length)];
+    const randomPreset =
+      randomCat.presets[Math.floor(Math.random() * randomCat.presets.length)];
+    const stickerChoices = CARD_STICKERS.filter((s) => s.id !== 'none');
+    const randomSticker =
+      stickerChoices[Math.floor(Math.random() * stickerChoices.length)];
+
+    setSelectedId(randomCat.id);
+    setCaption(randomPreset);
+    setStickerId(randomSticker.id);
+    setStatusMessage('Kombo kartu lucu berhasil diacak.');
+  };
+
   const handleCopyText = async () => {
-    const textToCopy = `"${caption.trim() || activeCat.signatureLine}" - ${activeCat.name} (Landing Cat)`;
+    const stickerNote = activeSticker.text ? ` [${activeSticker.text}]` : '';
+    const textToCopy = `"${caption.trim() || activeCat.signatureLine}" - ${activeCat.name}${stickerNote} (Landing Cat)`;
     try {
       await navigator.clipboard.writeText(textToCopy);
       setStatusMessage('Teks kartu berhasil disalin ke clipboard.');
@@ -73,7 +93,6 @@ export function CardStudio({ cats }) {
       ctx.fillStyle = isDarkCard ? '#11100E' : '#F6F1E7';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw portrait inside padded frame
       const frameX = 48;
       const frameY = 48;
       const frameW = 704;
@@ -98,7 +117,23 @@ export function CardStudio({ cats }) {
       ctx.lineWidth = 4;
       ctx.strokeRect(frameX, frameY, frameW, frameH);
 
-      // Footer typography block
+      if (activeSticker.text) {
+        ctx.save();
+        ctx.translate(frameX + frameW - 140, frameY + 64);
+        ctx.rotate(-0.08);
+        ctx.fillStyle = '#FF7A45';
+        ctx.strokeStyle = '#171412';
+        ctx.lineWidth = 4;
+        ctx.fillRect(-110, -28, 220, 56);
+        ctx.strokeRect(-110, -28, 220, 56);
+        ctx.fillStyle = '#171412';
+        ctx.font = '800 24px "Syne", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(activeSticker.text, 0, 2);
+        ctx.restore();
+      }
+
       ctx.fillStyle = isDarkCard ? '#FF7A45' : '#B83B14';
       ctx.font = '700 22px "Plus Jakarta Sans", sans-serif';
       ctx.fillText(
@@ -135,11 +170,22 @@ export function CardStudio({ cats }) {
     <section id="studio-kata" className="studio-section">
       <div className="container studio-grid">
         <div className="studio-controls">
-          <h2 className="section-title">Studio Kartu Ekspresi</h2>
-          <p className="section-subtitle">
-            Pilih salah satu potret, pakai kalimat bawaan atau tulis pesanmu
-            sendiri, lalu unduh sebagai kartu PNG siap bagikan.
-          </p>
+          <div className="studio-top-row">
+            <div>
+              <h2 className="section-title">Studio Kartu Ekspresi</h2>
+              <p className="section-subtitle">
+                Pilih potret, tambahkan stiker komik, tulis pesanmu sendiri,
+                lalu unduh sebagai kartu PNG siap bagikan.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="tool-btn"
+              onClick={handleRandomCombo}
+            >
+              Acak Kombo Lucu
+            </button>
+          </div>
 
           <div className="studio-block">
             <span className="field-label">1. Pilih potret kucing</span>
@@ -204,7 +250,27 @@ export function CardStudio({ cats }) {
           </div>
 
           <div className="studio-block">
-            <span className="field-label">4. Gaya bingkai kartu</span>
+            <span className="field-label">4. Stiker komik &amp; bingkai</span>
+            <div
+              className="studio-cat-picker"
+              role="group"
+              aria-label="Pilih stiker komik kartu"
+            >
+              {CARD_STICKERS.map((sticker) => {
+                const active = sticker.id === stickerId;
+                return (
+                  <button
+                    key={sticker.id}
+                    type="button"
+                    className={`picker-chip ${active ? 'is-active' : ''}`}
+                    onClick={() => setStickerId(sticker.id)}
+                    aria-pressed={active}
+                  >
+                    {sticker.label}
+                  </button>
+                );
+              })}
+            </div>
             <div
               className="frame-style-group"
               role="group"
@@ -288,6 +354,12 @@ export function CardStudio({ cats }) {
                   style={{ objectPosition: activeCat.objectPosition }}
                   onError={() => setImgError(true)}
                 />
+              )}
+
+              {activeSticker.text && (
+                <span className="postcard-sticker" aria-hidden="true">
+                  {activeSticker.text}
+                </span>
               )}
             </div>
 

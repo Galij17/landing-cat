@@ -14,8 +14,10 @@ export function GallerySection({
   onTriggerError,
   onRecoverError,
   patsByCat,
+  treatsByCat,
   patBursts,
   onPatCat,
+  onTreatCat,
   onOpenDetail,
 }) {
   const [brokenImages, setBrokenImages] = useState({});
@@ -223,11 +225,24 @@ export function GallerySection({
                   <button
                     type="button"
                     className={`btn-secondary ${
-                      patBursts[leadCat.id] ? 'is-pat-btn-active' : ''
+                      patBursts[leadCat.id]?.type === 'pat'
+                        ? 'is-pat-btn-active'
+                        : ''
                     }`}
                     onClick={() => onPatCat(leadCat.id)}
                   >
                     Tepuk Kepala ({patsByCat[leadCat.id] || 0})
+                  </button>
+                  <button
+                    type="button"
+                    className={`tool-btn ${
+                      patBursts[leadCat.id]?.type === 'treat'
+                        ? 'is-pat-btn-active'
+                        : ''
+                    }`}
+                    onClick={() => onTreatCat(leadCat.id)}
+                  >
+                    Kasih Ikan ({treatsByCat[leadCat.id] || 0})
                   </button>
                 </div>
               </div>
@@ -287,11 +302,24 @@ export function GallerySection({
                       <button
                         type="button"
                         className={`pat-btn ${
-                          patBursts[cat.id] ? 'is-pat-btn-active' : ''
+                          patBursts[cat.id]?.type === 'pat'
+                            ? 'is-pat-btn-active'
+                            : ''
                         }`}
                         onClick={() => onPatCat(cat.id)}
                       >
-                        Tepuk Kepala ({patsByCat[cat.id] || 0})
+                        Tepuk ({patsByCat[cat.id] || 0})
+                      </button>
+                      <button
+                        type="button"
+                        className={`pat-btn ${
+                          patBursts[cat.id]?.type === 'treat'
+                            ? 'is-pat-btn-active'
+                            : ''
+                        }`}
+                        onClick={() => onTreatCat(cat.id)}
+                      >
+                        Ikan ({treatsByCat[cat.id] || 0})
                       </button>
                       <button
                         type="button"

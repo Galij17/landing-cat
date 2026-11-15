@@ -3,11 +3,12 @@ import { CatMark } from './CatMark';
 
 const NAV_LINKS = [
   { href: '#sorotan', label: 'Sorotan' },
-  { href: '#galeri', label: 'Galeri 5 Kucing' },
+  { href: '#galeri', label: 'Galeri' },
+  { href: '#adu-ekspresi', label: 'Adu Ekspresi' },
   { href: '#studio-kata', label: 'Studio Kartu' },
 ];
 
-export function Navbar({ theme, onToggleTheme }) {
+export function Navbar({ theme, onToggleTheme, soundEnabled, onToggleSound }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -46,6 +47,20 @@ export function Navbar({ theme, onToggleTheme }) {
         </nav>
 
         <div className="header-actions">
+          <button
+            type="button"
+            className="desktop-sound-toggle"
+            onClick={onToggleSound}
+            aria-pressed={soundEnabled}
+            aria-label={
+              soundEnabled
+                ? 'Matikan suara efek kucing'
+                : 'Nyalakan suara efek kucing'
+            }
+          >
+            {soundEnabled ? 'Suara: Nyala' : 'Suara: Mati'}
+          </button>
+
           <button
             type="button"
             className="theme-toggle"
